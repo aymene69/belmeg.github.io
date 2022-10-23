@@ -2,6 +2,10 @@
 <head>
     <link rel="stylesheet" href="leaflet/leaflet.css"/>
     <script src="leaflet/leaflet-src.js"></script>
+    <script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+    <script>
+        var bbox = turf.bbox(features);
+    </script>
     <style>
     #map{
         position: absolute;
@@ -13,25 +17,60 @@
     body{
         background-color: #7387ac;
     }
+    /* supprimer le bloc suivant pour enlever l'affichage des oordonnées */
+    .marker-position {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+        padding: 10px;
+        font-weight: 700;
+        background-color: rgb(255, 255, 255);
+    }
+
     </style>
 </head>
 <body>
     <div id="map"></div>
-
+    <!-- supprimer la ligne en dessous pour supprimer l'affichage des coordonnées -->
+    <div class="marker-position"></div>
 </body>
 <script>
+    // init de la map
     var map = L.map('map', {
         crs: L.CRS.Simple,
         minZoom: -3.5,
+        drawControl: true,
         });
 
     var bounds = [[-8500,-8500], [8500,8500]];
     var image = L.imageOverlay('map.png', bounds).addTo(map);
-    var sol = L.latLng([ 0, 0 ]);
-    L.marker(sol).addTo(map).bindPopup("Milieu de la carte");
     map.fitBounds(bounds);
     map.attributionControl.addAttribution('&copy; Aymene69 lpb</a> - <a href="https://vice.mp">vice.mp</a>');
 
+    // ajout d'un point nommé milieu aux coordonnées 0,0
+    var milieu = L.latLng([0, 0]);
+    L.marker(milieu).addTo(map).bindPopup("Milieu de la carte").on("click", clickZoom);
+    
+    // supprimer le bloc ci dessous pour supprimer l'affichage des coordonnées
+    map.on("click", function (e) {
+        const markerPlace = document.querySelector(".marker-position");
+        markerPlace.textContent = e.latlng;
+    });
+    // points du polygone à afficher
+    const starfishIsland = [
+        [630, 800],
+        [1900, 800],
+        [1900, 2350],
+        [630, 2350],
+    ];
+    // afficher le polygone qu'on a créé
+    L.polygon(starfishIsland, {color: "white"}).addTo(map).bindPopup("Starfish Island");
+
+    // zoomer au clic
+    function clickZoom(e) {
+        map.setView(e.target.getLatLng(), -3);
+    }
     
 </script>
 
